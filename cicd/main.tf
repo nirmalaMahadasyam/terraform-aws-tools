@@ -32,19 +32,19 @@ module "jenkins_agent" {
 }
 
 resource "aws_key_pair" "tools" {
-  key_name   = "tools"
+  key_name   = "nirmaladevops"
+  public_key = file("~/.ssh/nirmaladevops.pub")
+ #public_key = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPaEVY4ncZQ6kLaH5N+mRns5cS9e4j+XNQEMyWMNLPTH DELL@DESKTOP-5CKL54M"
 #   # you can paste the public key directly like this
 #   #public_key = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIL6ONJth+DzeXbU3oGATxjVmoRjPepdl7sBuPzzQT2Nc sivak@BOOK-I6CR3LQ85Q"
 #   #public_key = file("~/.ssh/tools.pub")
-   public_key = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPaEVY4ncZQ6kLaH5N+mRns5cS9e4j+XNQEMyWMNLPTH DELL@DESKTOP-5CKL54M"
-# # #   #public_key = file("~/.ssh/nirmaladevops.pub")
-#   # ~ means windows home directory
+  #   # ~ means windows home directory
 }
 
-module "nexus" {
+module "nexus1" {
   source  = "terraform-aws-modules/ec2-instance/aws"
 
-  name = "nexus"
+  name = "nexus1"
 
   instance_type          = "t3.medium"
   vpc_security_group_ids = ["sg-0023be3b9dcdb312d"]
@@ -52,14 +52,22 @@ module "nexus" {
   subnet_id = "subnet-0b80f31d378459702"
   ami = data.aws_ami.nexus_ami_info.id
   key_name = aws_key_pair.tools.key_name
-  root_block_device = [
+ root_block_device = [
     {
       volume_type = "gp3"
       volume_size = 30
     }
   ]
+  # root_block_device = [
+  #   {
+  #     volume_size = 30
+  #     volume_type = "gp3"
+  #     //volume_type = "gp3"
+  #     //volume_size = 30
+  #   }
+  # ]
   tags = {
-    Name = "nexus"
+    Name = "nexus1"
   }
 }
 
@@ -90,12 +98,12 @@ module "records" {
     }
     ,
     {
-      name    = "nexus"
+      name    = "nexus1"
       type    = "A"
       ttl     = 1
       allow_overwrite = true
       records = [
-        module.nexus.private_ip
+        module.nexus1.private_ip
       ]
       allow_overwrite = true
     }
