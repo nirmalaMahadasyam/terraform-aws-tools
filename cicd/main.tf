@@ -3,15 +3,15 @@
 module "jenkins" {
   source  = "terraform-aws-modules/ec2-instance/aws"
 
-  name = "jenkins-tf"
+  name = "jenkins-tf-master"
 
-  instance_type          = "t3.small"
+  instance_type          ="t3.medium" //"t3.small"
   vpc_security_group_ids = ["sg-0023be3b9dcdb312d"] #replace your SG
   subnet_id = "subnet-0b80f31d378459702" #replace your Subnet
   ami = data.aws_ami.ami_info.id
   user_data = file("jenkins.sh")
   tags = {
-    Name = "jenkins-tf"
+    Name = "jenkins-tf-master"
   }
 }
 
@@ -20,7 +20,7 @@ module "jenkins_agent" {
 
   name = "jenkins-agent"
 
-  instance_type          = "t3.small"
+  instance_type          = "t3.medium"//"t3.small"
   vpc_security_group_ids = ["sg-0023be3b9dcdb312d"]
   # convert StringList to list and get first element
   subnet_id = "subnet-0b80f31d378459702"
@@ -41,34 +41,34 @@ resource "aws_key_pair" "tools" {
   #   # ~ means windows home directory
 }
 
-module "nexus" {
-  source  = "terraform-aws-modules/ec2-instance/aws"
+# module "nexus" {
+#   source  = "terraform-aws-modules/ec2-instance/aws"
 
-  name = "nexus"
+#   name = "nexus"
 
-  instance_type          = "t3.medium"
-  vpc_security_group_ids = ["sg-0023be3b9dcdb312d"]
-  # convert StringList to list and get first element
-  subnet_id = "subnet-0b80f31d378459702"
-  ami = data.aws_ami.nexus_ami_info.id
-  key_name = aws_key_pair.tools.key_name
- root_block_device = {
-      volume_type = "gp3"
-      volume_size = 30
-    }
+#   instance_type          = "t3.medium"
+#   vpc_security_group_ids = ["sg-0023be3b9dcdb312d"]
+#   # convert StringList to list and get first element
+#   subnet_id = "subnet-0b80f31d378459702"
+#   ami = data.aws_ami.nexus_ami_info.id
+#   key_name = aws_key_pair.tools.key_name
+#  root_block_device = {
+#       volume_type = "gp3"
+#       volume_size = 30
+#     }
   
-  # root_block_device = [
-  #   {
-  #     volume_size = 30
-  #     volume_type = "gp3"
-  #     //volume_type = "gp3"
-  #     //volume_size = 30
-  #   }
-  # ]
-  tags = {
-    Name = "nexus"
-  }
-}
+#   # root_block_device = [
+#   #   {
+#   #     volume_size = 30
+#   #     volume_type = "gp3"
+#   #     //volume_type = "gp3"
+#   #     //volume_size = 30
+#   #   }
+#   # ]
+#   tags = {
+#     Name = "nexus"
+#   }
+# }
 
 module "records" {
   source  = "terraform-aws-modules/route53/aws//modules/records"
@@ -95,17 +95,17 @@ module "records" {
       ]
       allow_overwrite = true
     }
-    ,
-    {
-      name    = "nexus"
-      type    = "A"
-      ttl     = 1
-      allow_overwrite = true
-      records = [
-        module.nexus.private_ip
-      ]
-      allow_overwrite = true
-    }
+    # ,
+    # {
+    #   name    = "nexus"
+    #   type    = "A"
+    #   ttl     = 1
+    #   allow_overwrite = true
+    #   records = [
+    #     module.nexus.private_ip
+    #   ]
+    #   allow_overwrite = true
+    # }
   ]
 
 }
